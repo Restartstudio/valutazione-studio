@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valutazione Studio — Restartstudio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0D0D0D;color:#F0EDE8;font-family:'DM Sans',system-ui,sans-serif;min-height:100vh}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp 0.35s ease}
+
+/* HEADER */
+header{padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2A2A2A}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,#8C0B00,#E84A0E);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:18px;color:white}
+.logo-text{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.15em;text-transform:uppercase}
+.badge{font-family:'DM Mono',monospace;font-size:10px;color:#EF8730;border:1px solid #EF8730;padding:4px 10px;border-radius:20px;letter-spacing:.1em}
+
+/* LAYOUT */
+.container{max-width:720px;margin:0 auto;padding:0 24px 80px}
+.screen{display:none}.screen.active{display:block}
+
+/* PROGRESS */
+.progress-wrap{padding:24px 0 0}
+.progress-top{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;margin-bottom:8px}
+.progress-top .lbl{color:#888}.progress-top .cnt{color:#E84A0E}
+.progress-bar{height:3px;background:#2A2A2A;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#8C0B00,#E84A0E,#EF8730);transition:width .5s ease;border-radius:2px;width:0%}
+
+/* CARD */
+.card{background:#1C1C1C;border:1px solid #2A2A2A;border-radius:16px;padding:36px;margin-top:28px}
+.q-num{font-family:'DM Mono',monospace;font-size:10px;color:#E84A0E;letter-spacing:.15em;margin-bottom:14px}
+.q-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1.35;margin-bottom:8px}
+.q-hint{font-size:13px;color:#888;margin-bottom:28px;font-weight:300;line-height:1.6}
+
+/* OPTIONS */
+.option{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border:1px solid #2A2A2A;border-radius:10px;cursor:pointer;margin-bottom:8px;background:#141414;transition:all .15s}
+.option:hover{border-color:#E84A0E;background:rgba(232,74,14,.06)}
+.option.selected{border-color:#E84A0E;background:rgba(232,74,14,.1)}
+.opt-key{font-family:'DM Mono',monospace;font-size:11px;color:#E84A0E;border:1px solid #E84A0E;border-radius:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s}
+.option.selected .opt-key{background:#E84A0E;color:white}
+.opt-label{font-size:14px;font-weight:500}
+.opt-desc{font-size:12px;color:#888;margin-top:3px;font-weight:300}
+
+/* NAV */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:24px;border-top:1px solid #2A2A2A}
+.btn-primary{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(135deg,#8C0B00,#E84A0E);color:white;box-shadow:0 4px 20px rgba(140,11,0,.3);transition:all .2s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(140,11,0,.45)}
+.btn-primary:disabled{background:#333;color:#666;box-shadow:none;cursor:not-allowed;transform:none;opacity:.5}
+.btn-ghost{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;border-radius:8px;border:1px solid #2A2A2A;background:transparent;color:#888;cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:#888;color:#F0EDE8}
+
+/* HERO */
+.hero{max-width:760px;margin:0 auto;padding:80px 24px 60px;text-align:center}
+.hero-eye{font-family:'DM Mono',monospace;font-size:11px;color:#E84A0E;letter-spacing:.2em;text-transform:uppercase;margin-bottom:20px}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(32px,6vw,58px);font-weight:900;line-height:1.05;margin-bottom:22px;background:linear-gradient(135deg,#F0EDE8 0%,#EF8730 60%,#E84A0E 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:17px;color:#888;line-height:1.7;max-width:560px;margin:0 auto 36px;font-weight:300}
+.pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.pill{font-family:'DM Mono',monospace;font-size:10px;color:#888;border:1px solid #2A2A2A;padding:5px 12px;border-radius:20px}
+.btn-start{font-family:'DM Mono',monospace;font-size:13px;letter-spacing:.1em;text-transform:uppercase;padding:16px 40px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(135deg,#8C0B00,#E84A0E);color:white;box-shadow:0 4px 24px rgba(140,11,0,.35);transition:all .2s}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(140,11,0,.5)}
+
+/* LOADING */
+.loading-wrap{text-align:center;padding:120px 24px}
+.spinner{width:44px;height:44px;border:3px solid #2A2A2A;border-top-color:#E84A0E;border-radius:50%;margin:0 auto 24px;animation:spin .8s linear infinite}
+.loading-txt{font-family:'DM Mono',monospace;font-size:12px;color:#888;letter-spacing:.1em;line-height:1.8}
+
+/* RESULT */
+.result-eye{font-family:'DM Mono',monospace;font-size:10px;color:#E84A0E;letter-spacing:.15em;margin-bottom:12px}
+.result-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:6px}
+.result-sub{font-size:13px;color:#888;margin-bottom:32px;font-weight:300}
+.value-box{text-align:center;padding:36px 24px;background:linear-gradient(135deg,rgba(140,11,0,.15),rgba(239,135,48,.08));border:1px solid rgba(232,74,14,.2);border-radius:12px;margin-bottom:28px}
+.value-lbl{font-family:'DM Mono',monospace;font-size:10px;color:#888;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px}
+.value-range{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,44px);font-weight:900;background:linear-gradient(135deg,#EF8730,#E84A0E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:8px}
+.value-note{font-size:12px;color:#555}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
+@media(max-width:560px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:#141414;border:1px solid #2A2A2A;border-radius:10px;padding:14px}
+.metric-name{font-family:'DM Mono',monospace;font-size:9px;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.metric-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
+.metric-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;margin-top:5px}
+.high{background:rgba(46,204,113,.15);color:#2ECC71}
+.mid{background:rgba(239,135,48,.15);color:#EF8730}
+.low{background:rgba(231,76,60,.15);color:#E74C3C}
+.analysis-box{background:#141414;border:1px solid #2A2A2A;border-radius:10px;padding:22px;margin-bottom:16px}
+.analysis-box h3{font-family:'DM Mono',monospace;font-size:10px;color:#E84A0E;letter-spacing:.15em;text-transform:uppercase;margin-bottom:12px}
+.analysis-txt{font-size:14px;color:#F0EDE8;line-height:1.75;font-weight:300}
+.analysis-txt strong{color:#EF8730;font-weight:500}
+.rec{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:#1C1C1C;border-radius:8px;border-left:3px solid #E84A0E;margin-bottom:8px;font-size:13px;color:#F0EDE8;font-weight:300;line-height:1.5}
+.rec-arrow{color:#E84A0E;flex-shrink:0}
+.cta-box{padding:28px;background:linear-gradient(135deg,rgba(140,11,0,.2),rgba(232,74,14,.1));border:1px solid rgba(232,74,14,.25);border-radius:12px;text-align:center;margin-bottom:0}
+.cta-box h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px}
+.cta-box p{font-size:13px;color:#888;margin-bottom:20px;font-weight:300}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-outline{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;border-radius:8px;border:1px solid #E84A0E;color:#E84A0E;text-decoration:none;background:transparent;transition:all .2s;display:inline-block}
+.btn-outline:hover{background:rgba(232,74,14,.1)}
+.btn-outline-ghost{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;border-radius:8px;border:1px solid #2A2A2A;color:#888;text-decoration:none;background:transparent;transition:all .2s;display:inline-block}
+.disclaimer{font-family:'DM Mono',monospace;font-size:10px;color:#555;text-align:center;margin-top:28px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">R</div>
+    <div class="logo-text">Restartstudio</div>
+  </div>
+  <div class="badge" id="header-badge">STIMA AI · BETA</div>
+</header>
+
+<!-- HERO -->
+<div class="screen active" id="screen-hero">
+  <div class="hero fade-up">
+    <div class="hero-eye">Strumento di valutazione proprietario</div>
+    <h1>Quanto vale il tuo studio professionale?</h1>
+    <p>Un'analisi quantitativa per commercialisti e tributaristi che pianificano la cessione. Ottieni una stima motivata del valore di avviamento in 3 minuti.</p>
+    <div class="pills">
+      <span class="pill">⏱ 3 minuti</span>
+      <span class="pill">11 domande</span>
+      <span class="pill">Stima AI motivata</span>
+      <span class="pill">No dati personali obbligatori</span>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">Inizia la valutazione →</button>
+  </div>
+</div>
+
+<!-- QUESTIONS -->
+<div class="screen" id="screen-quiz">
+  <div class="container">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="lbl">AVANZAMENTO</span>
+        <span class="cnt" id="prog-count">0 / 11</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    </div>
+    <div class="card fade-up" id="question-card">
+      <div class="q-num" id="q-num"></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-hint" id="q-hint"></div>
+      <div id="options-list"></div>
+      <div class="nav-row">
+        <button class="btn-ghost" id="btn-back" onclick="goBack()">← Indietro</button>
+        <button class="btn-primary" id="btn-next" onclick="goNext()" disabled>Avanti →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="screen" id="screen-loading">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <div class="loading-txt">ANALISI AI IN CORSO<br><span style="font-size:10px;color:#444">Modello reddituale · Benchmark di mercato</span></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="screen-result">
+  <div class="container">
+    <div class="card fade-up" id="result-card"></div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { id:1, section:"ANAGRAFICA STUDIO", text:"Qual è l'anzianità operativa dello studio?", hint:"Gli anni di attività influenzano direttamente la fedeltà del parco clienti e la reputazione di mercato.", options:[
+    {label:"Meno di 5 anni", desc:"Studio giovane, clientela in costruzione", score:1},
+    {label:"5 – 15 anni", desc:"Posizionamento consolidato, fidelizzazione iniziale", score:2},
+    {label:"15 – 25 anni", desc:"Studio maturo, rapporti pluriennali con i clienti", score:3},
+    {label:"Oltre 25 anni", desc:"Studio storico, forte brand territoriale", score:4}
+  ]},
+  { id:2, section:"RICAVI", text:"Qual è il fatturato medio annuo degli ultimi 3 esercizi?", hint:"Il fatturato normalizzato è la base primaria del metodo reddituale (moltiplicatore 0,8×–1,5× standard di mercato).", options:[
+    {label:"Fino a €100.000", desc:"Struttura mono-professionista, bassa scala", score:1, rev:75000},
+    {label:"€100.000 – €250.000", desc:"Studio medio, possibile collaboratore", score:2, rev:175000},
+    {label:"€250.000 – €500.000", desc:"Studio strutturato, 2–4 risorse", score:3, rev:375000},
+    {label:"Oltre €500.000", desc:"Studio grande o associato, multi-professionista", score:4, rev:750000}
+  ]},
+  { id:3, section:"STRUTTURA CLIENTI", text:"Quanti clienti attivi ha lo studio?", hint:"Il numero di clienti attivi determina la capillarità dell'avviamento. Pochi grandi clienti aumentano il rischio di concentrazione.", options:[
+    {label:"Fino a 50 clienti", desc:"Alta concentrazione, rischio medio-alto", score:1},
+    {label:"50 – 150 clienti", desc:"Portafoglio bilanciato, tipico studio medio", score:2},
+    {label:"150 – 350 clienti", desc:"Buona diversificazione, struttura operativa", score:3},
+    {label:"Oltre 350 clienti", desc:"Alta diversificazione, forte avviamento", score:4}
+  ]},
+  { id:4, section:"CONCENTRAZIONE", text:"Qual è la quota di fatturato generata dai 5 clienti più grandi?", hint:"Un acquirente applicherà uno sconto significativo se il top-5 supera il 40% dei ricavi.", options:[
+    {label:"Oltre il 60%", desc:"Concentrazione critica — sconto valutativo elevato", score:1},
+    {label:"40% – 60%", desc:"Concentrazione rilevante — applicabile haircut", score:2},
+    {label:"20% – 40%", desc:"Concentrazione fisiologica — nessuna penalità", score:3},
+    {label:"Meno del 20%", desc:"Portafoglio eccellente — premium valutativo", score:4}
+  ]},
+  { id:5, section:"TIPOLOGIA SERVIZI", text:"Qual è la composizione prevalente dei servizi erogati?", hint:"I servizi con ricavi ricorrenti e a contratto hanno un moltiplicatore più alto.", options:[
+    {label:"Prevalentemente dichiarativo/fiscale spot", desc:"730, Redditi PF — bassa fidelizzazione", score:1},
+    {label:"Mix fiscale + contabilità ordinaria", desc:"Clienti stabili ma relazione dipendente dal titolare", score:2},
+    {label:"Contabilità continuativa + consulenza", desc:"Ricavi ricorrenti mensili, alta cedibilità", score:3},
+    {label:"Consulenza straordinaria + M&A + contenzioso", desc:"Alta marginalità, portafoglio premium", score:4}
+  ]},
+  { id:6, section:"PERSONALE", text:"Quante risorse operative ha lo studio?", hint:"La presenza di personale strutturato riduce la dipendenza dal titolare e aumenta la cedibilità operativa.", options:[
+    {label:"Solo titolare", desc:"Massima dipendenza personale", score:1},
+    {label:"1–2 collaboratori part-time o praticanti", desc:"Struttura minima", score:2},
+    {label:"2–4 risorse full-time", desc:"Studio strutturato, bassa dipendenza", score:3},
+    {label:"5 o più risorse", desc:"Organizzazione autonoma, alta cedibilità", score:4}
+  ]},
+  { id:7, section:"TRANSIZIONE", text:"Il titolare è disponibile a un periodo di affiancamento post-cessione?", hint:"Un affiancamento di 12–24 mesi riduce il rischio di erosione del portafoglio e genera un premio sul prezzo.", options:[
+    {label:"No, cessione immediata", desc:"Rischio di fuga clienti elevato per il cessionario", score:0},
+    {label:"Sì, affiancamento fino a 6 mesi", desc:"Transizione breve, parzialmente mitigante", score:1},
+    {label:"Sì, affiancamento 6–18 mesi", desc:"Profilo ottimale per la maggior parte delle cessioni", score:2},
+    {label:"Sì, coinvolgimento consulenziale oltre 18 mesi", desc:"Massima continuità, premium negoziale significativo", score:3}
+  ]},
+  { id:8, section:"DIGITALE & PROCESSI", text:"Qual è il livello di digitalizzazione operativa dello studio?", hint:"Studi digitalizzati riducono i costi di integrazione per il cessionario e aumentano il valore percepito.", options:[
+    {label:"Archiviazione cartacea prevalente", desc:"Alto costo di integrazione per il cessionario", score:1},
+    {label:"Software di base (Zucchetti/TeamSystem) + FE", desc:"Standard di mercato, nessun vantaggio aggiuntivo", score:2},
+    {label:"Gestionale cloud + firma digitale + portale clienti", desc:"Integrazione rapida, valore aggiunto", score:3},
+    {label:"Processi automatizzati + AI + workflow documentale", desc:"Studio all'avanguardia, forte premium di mercato", score:4}
+  ]},
+  { id:9, section:"REPUTAZIONE", text:"Come valuta la reputazione territoriale e professionale dello studio?", hint:"La reputazione include referenze, presenza in associazioni di categoria, incarichi CTU, menzioni su stampa.", options:[
+    {label:"Locale/limitata, nessun riconoscimento formale", desc:"", score:1},
+    {label:"Buona reputazione nel bacino di riferimento", desc:"Clienti fidelizzati, passaparola attivo", score:2},
+    {label:"Presenza associativa e/o CTU/peritale consolidata", desc:"Incarichi dall'Ordine o tribunali, docenza", score:3},
+    {label:"Forte brand, pubblicazioni, posizione di rilievo", desc:"Reputazione sovra-territoriale, forte leva negoziale", score:4}
+  ]},
+  { id:10, section:"MARGINALITÀ", text:"Qual è il margine operativo netto stimato (MON) dello studio?", hint:"Il MON (ricavi – costi operativi diretti, esclusa la remunerazione del titolare) è la base del DCF applicato alla cessione.", options:[
+    {label:"Sotto il 20%", desc:"Costi elevati, struttura poco efficiente", score:1},
+    {label:"20% – 35%", desc:"Marginalità nella norma per studi strutturati", score:2},
+    {label:"35% – 50%", desc:"Buona efficienza operativa", score:3},
+    {label:"Oltre il 50%", desc:"Eccellenza operativa — forte potere negoziale", score:4}
+  ]},
+  { id:11, section:"URGENZA", text:"Qual è l'orizzonte temporale previsto per la cessione?", hint:"L'urgenza è un fattore negoziale critico. Chi non ha pressioni temporali ottiene il valore pieno.", options:[
+    {label:"Entro 12 mesi", desc:"Urgenza elevata — sconto negoziale probabile", score:0},
+    {label:"1–3 anni", desc:"Orizzonte pianificabile, margine di trattativa", score:1},
+    {label:"3–5 anni", desc:"Pianificazione strategica — ottimizzazione possibile", score:2},
+    {label:"Oltre 5 anni o flessibile", desc:"Massima leva — vendita solo alle condizioni giuste", score:3}
+  ]}
+];
+
+const KEYS = ["A","B","C","D"];
+const answers = {};
+let current = 0; // 0-based index into QUESTIONS
+
+function fmt(n){ return "€" + Math.round(n).toLocaleString("it-IT"); }
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function startQuiz(){
+  current = 0;
+  renderQuestion();
+  showScreen("screen-quiz");
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  const sel = answers[q.id];
+  const isLast = current === QUESTIONS.length - 1;
+
+  document.getElementById("q-num").textContent = "DOMANDA " + String(current+1).padStart(2,"0") + " · " + q.section;
+  document.getElementById("q-text").textContent = q.text;
+  document.getElementById("q-hint").textContent = q.hint;
+  document.getElementById("btn-back").textContent = current === 0 ? "← Inizio" : "← Indietro";
+  document.getElementById("btn-next").textContent = isLast ? "Genera Valutazione →" : "Avanti →";
+  document.getElementById("btn-next").disabled = sel === undefined;
+
+  // Progress
+  const answered = Object.keys(answers).length;
+  document.getElementById("prog-count").textContent = answered + " / 11";
+  document.getElementById("prog-fill").style.width = Math.round((answered/11)*100) + "%";
+
+  // Options
+  const list = document.getElementById("options-list");
+  list.innerHTML = "";
+  q.options.forEach((opt, i) => {
+    const div = document.createElement("div");
+    div.className = "option" + (sel?.idx === i ? " selected" : "");
+    div.innerHTML = `<div class="opt-key">${KEYS[i]}</div><div><div class="opt-label">${opt.label}</div>${opt.desc ? `<div class="opt-desc">${opt.desc}</div>` : ""}</div>`;
+    div.onclick = () => {
+      answers[q.id] = { idx: i, score: opt.score, rev: opt.rev || null };
+      document.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      div.classList.add("selected");
+      div.querySelector(".opt-key").style.background = "#E84A0E";
+      div.querySelector(".opt-key").style.color = "white";
+      document.getElementById("btn-next").disabled = false;
+      // Update progress
+      const ans = Object.keys(answers).length;
+      document.getElementById("prog-count").textContent = ans + " / 11";
+      document.getElementById("prog-fill").style.width = Math.round((ans/11)*100) + "%";
+    };
+    list.appendChild(div);
+  });
+}
+
+function goBack(){
+  if(current === 0){ showScreen("screen-hero"); return; }
+  current--;
+  renderQuestion();
+}
+
+function goNext(){
+  if(current === QUESTIONS.length - 1){ generateResult(); return; }
+  current++;
+  renderQuestion();
+  document.getElementById("question-card").classList.remove("fade-up");
+  void document.getElementById("question-card").offsetWidth;
+  document.getElementById("question-card").classList.add("fade-up");
+}
+
+async function generateResult(){
+  showScreen("screen-loading");
+  document.getElementById("header-badge").textContent = "ELABORAZIONE...";
+
+  const revEntry = answers[2];
+  const baseRev = revEntry?.rev || 175000;
+  let totalScore = 0;
+  for(let q=1;q<=11;q++) totalScore += answers[q]?.score || 0;
+  const scoreRatio = totalScore / 36;
+
+  const labels = {
+    1:["Anzianità",["<5 anni","5–15 anni","15–25 anni",">25 anni"]],
+    2:["Fatturato",["<€100k","€100k–€250k","€250k–€500k",">€500k"]],
+    3:["N° clienti",["<50","50–150","150–350",">350"]],
+    4:["Concentrazione top-5",[">60%","40–60%","20–40%","<20%"]],
+    5:["Servizi",["Dichiarativo spot","Mix fiscale+cont.","Contabilità ricorrente","Consulenza M&A"]],
+    6:["Personale",["Solo titolare","1–2 collab.","2–4 FT","5+"]],
+    7:["Affiancamento",["No","<6 mesi","6–18 mesi",">18 mesi"]],
+    8:["Digitalizzazione",["Cartaceo","Software base","Cloud+portale","AI+automatizzato"]],
+    9:["Reputazione",["Locale","Buona locale","CTU/associativa","Brand forte"]],
+    10:["MON",["<20%","20–35%","35–50%",">50%"]],
+    11:["Orizzonte",["<12 mesi","1–3 anni","3–5 anni",">5 anni"]]
+  };
+
+  let summaryLines = [];
+  for(let q=1;q<=11;q++){
+    const a = answers[q]; if(!a) continue;
+    const [label,opts] = labels[q];
+    summaryLines.push(`- ${label}: ${opts[a.idx]} (score ${a.score})`);
+  }
+
+  const prompt = `Sei un esperto di M&A e valutazione degli studi professionali italiani (commercialisti, tributaristi).
+Analizza questi dati e fornisci una stima motivata del valore di cessione.
+
+DATI STUDIO:
+${summaryLines.join('\n')}
+Fatturato base stimato: €${baseRev.toLocaleString('it')}
+Score complessivo: ${totalScore}/36 (${Math.round(scoreRatio*100)}%)
+
+Rispondi SOLO in JSON valido, nessun testo prima o dopo:
+{
+  "valore_min": <intero €>,
+  "valore_max": <intero €>,
+  "moltiplicatore": "<es: 0.9×–1.2×>",
+  "giudizio": "<una riga sintetica>",
+  "analisi": "<4–5 frasi HTML con <strong> per elementi chiave>",
+  "raccomandazioni": ["<rec1>","<rec2>","<rec3>","<rec4>"],
+  "metriche": [
+    {"nome":"Fatturato base","valore":"<€xxx>","livello":"mid"},
+    {"nome":"Moltiplicatore","valore":"<x.x×–x.x×>","livello":"<high|mid|low>"},
+    {"nome":"Score qualità","valore":"${totalScore}/36","livello":"${scoreRatio>0.7?"high":scoreRatio>0.45?"mid":"low"}"},
+    {"nome":"Rischio cessione","valore":"<Basso|Medio|Alto>","livello":"<high|mid|low>"},
+    {"nome":"Orizzonte","valore":"<breve>","livello":"<high|mid|low>"},
+    {"nome":"Ricorrenza ricavi","valore":"<Alta|Media|Bassa>","livello":"<high|mid|low>"}
+  ]
+}`;
+
+  let result;
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || "";
+    result = JSON.parse(raw.replace(/```json|```/g,"").trim());
+  } catch(e) {
+    const sr = Math.min(scoreRatio,1);
+    const mMin = 0.7+sr*0.5, mMax = mMin+0.4;
+    result = {
+      valore_min: Math.round(baseRev*mMin/10000)*10000,
+      valore_max: Math.round(baseRev*mMax/10000)*10000,
+      moltiplicatore: `${mMin.toFixed(1)}×–${mMax.toFixed(1)}×`,
+      giudizio: sr>0.7?"Medio-alto valore di avviamento":sr>0.45?"Medio valore di avviamento":"Medio-basso valore di avviamento",
+      analisi: `Lo studio presenta un <strong>profilo di avviamento ${sr>0.65?"solido":"nella norma"}</strong> con score qualitativo ${totalScore}/36. Il fatturato base di €${baseRev.toLocaleString("it")} costituisce la principale base di calcolo. I fattori di rischio emersi sono stati incorporati nel moltiplicatore correttivo. Un percorso strutturato di 12–24 mesi può aumentare significativamente il valore di cessione.`,
+      raccomandazioni:[
+        "Formalizzare contratti di consulenza continuativa con i principali clienti per aumentare la ricorrenza dei ricavi",
+        "Avviare un piano di affiancamento a un collaboratore senior per ridurre la dipendenza personale dal titolare",
+        "Implementare un gestionale cloud per documentare e trasferire la relazione con i clienti al cessionario",
+        "Pianificare la cessione con 24–36 mesi di anticipo per selezionare l'acquirente ideale e massimizzare il prezzo"
+      ],
+      metriche:[
+        {nome:"Fatturato base",valore:`€${(baseRev/1000).toFixed(0)}k`,livello:"mid"},
+        {nome:"Moltiplicatore",valore:`${mMin.toFixed(1)}×–${mMax.toFixed(1)}×`,livello:sr>0.6?"high":"mid"},
+        {nome:"Score qualità",valore:`${totalScore}/36`,livello:sr>0.7?"high":sr>0.45?"mid":"low"},
+        {nome:"Rischio cessione",valore:sr>0.65?"Basso":"Medio",livello:sr>0.65?"high":"mid"},
+        {nome:"Orizzonte",valore:answers[11]?.score>1?"Pianificato":"Breve",livello:answers[11]?.score>1?"high":"low"},
+        {nome:"Ricorrenza",valore:answers[5]?.score>2?"Alta":"Media",livello:answers[5]?.score>2?"high":"mid"}
+      ]
+    };
+  }
+
+  renderResult(result);
+}
+
+function renderResult(r){
+  document.getElementById("header-badge").textContent = "VALUTAZIONE COMPLETATA";
+
+  const mailBody = encodeURIComponent(`Gentile team Restartstudio,\n\ndesidero essere ricontattato/a da un vostro responsabile entro 48 ore per valutare le opportunità di cessione del mio studio professionale.\n\n─── I MIEI DATI ───\n\nNome e Cognome: [da compilare]\nTelefono diretto: [da compilare]\nEmail: [da compilare]\nCittà / Provincia: [da compilare]\nOrario preferito per essere richiamato: [da compilare]\n\n─── NOTE OPZIONALI ───\n\nBreve descrizione dello studio (anni di attività, area geografica, n. clienti):\n[da compilare]\n\nGrazie,`);
+  const mailHref = `mailto:info@restartstudio.it?subject=${encodeURIComponent("Consulenza gratuita — Cessione studio professionale")}&body=${mailBody}`;
+
+  const scoreLabel = {high:"▲ Positivo",mid:"→ Neutro",low:"▼ Attenzione"};
+
+  document.getElementById("result-card").innerHTML = `
+    <div class="result-eye">VALUTAZIONE AI MOTIVATA</div>
+    <div class="result-title">Valore Stimato dello Studio</div>
+    <div class="result-sub">${r.giudizio} · Moltiplicatore applicato: ${r.moltiplicatore}</div>
+
+    <div class="value-box">
+      <div class="value-lbl">RANGE DI CESSIONE STIMATO</div>
+      <div class="value-range">${fmt(r.valore_min)} – ${fmt(r.valore_max)}</div>
+      <div class="value-note">Metodo reddituale normalizzato · Moltiplicatore ${r.moltiplicatore} sul fatturato</div>
+    </div>
+
+    <div class="metrics">
+      ${r.metriche.map(m=>`
+        <div class="metric">
+          <div class="metric-name">${m.nome}</div>
+          <div class="metric-val">${m.valore}</div>
+          <div class="metric-badge ${m.livello}">${scoreLabel[m.livello]}</div>
+        </div>`).join("")}
+    </div>
+
+    <div class="analysis-box">
+      <h3>→ Analisi motivata</h3>
+      <div class="analysis-txt">${r.analisi}</div>
+    </div>
+
+    <div class="analysis-box">
+      <h3>→ Leve di valorizzazione pre-cessione</h3>
+      ${r.raccomandazioni.map(rec=>`<div class="rec"><span class="rec-arrow">→</span>${rec}</div>`).join("")}
+    </div>
+
+    <div class="cta-box">
+      <h3>Vuoi ottimizzare il valore prima di cedere?</h3>
+      <p>Restartstudio affianca commercialisti e tributaristi nella preparazione strategica alla cessione: due diligence, strutturazione dell'operazione, matching con acquirenti qualificati.</p>
+      <div class="cta-btns">
+        <a href="${mailHref}" class="btn-outline">→ Richiedi consulenza gratuita</a>
+        <a href="https://restartstudio.it" target="_blank" class="btn-outline-ghost">restartstudio.it</a>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      STIMA PROXY · Elaborazione AI su dati auto-dichiarati · Non costituisce perizia legalmente vincolante<br>
+      Metodo: Reddituale normalizzato + moltiplicatore corretto per rischio · Restartstudio
+    </div>
+  `;
+
+  showScreen("screen-result");
+}
+</script>
+</body>
+</html>
